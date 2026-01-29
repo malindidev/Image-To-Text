@@ -16,7 +16,7 @@ A modern, fully client-side web application to extract text from images. Support
 
 ## Demo
 
-[CLick me!](https://itt.bbnerds.com) 
+**[Click me!](https://itt.bbnerds.com)**
 
 ## Installation
 
