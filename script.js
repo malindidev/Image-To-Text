@@ -41,25 +41,23 @@ function showToast(msg, type = 'error') {
   setTimeout(() => toast.remove(), 3500);
 }
 
-function setPreview(src) {
+fileBtn.addEventListener('click', () => fileInput.click());
+
+function setImage(src) {
+  imageSrc = src;
   previewImg.src = src;
   previewCard.style.display = 'block';
-}
-
-function handleImage(file) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) return showToast('Invalid file type.');
-  if (imageSrc.startsWith('blob:')) URL.revokeObjectURL(imageSrc);
-  imageSrc = URL.createObjectURL(file);
-  setPreview(imageSrc);
   resultContainer.setAttribute('aria-hidden', 'true');
   resultText.textContent = '';
 }
 
-fileBtn.addEventListener('click', () => fileInput.click());
-
 fileInput.addEventListener('change', e => {
-  handleImage(e.target.files[0]);
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) {
+    showToast('Invalid file type.');
+    return;
+  }
+  setImage(URL.createObjectURL(file));
 });
 
 document.addEventListener('paste', e => {
@@ -67,9 +65,10 @@ document.addEventListener('paste', e => {
   if (!items) return;
   for (const item of items) {
     if (item.type.includes('image')) {
-      handleImage(item.getAsFile());
+      const blob = item.getAsFile();
+      setImage(URL.createObjectURL(blob));
       e.preventDefault();
-      return;
+      break;
     }
   }
 });
@@ -85,12 +84,12 @@ cameraBtn.addEventListener('click', async () => {
 });
 
 captureBtn.addEventListener('click', () => {
-  if (!stream) return showToast('No camera stream.');
+  if (!stream) return;
   const canvas = document.createElement('canvas');
   canvas.width = cameraVideo.videoWidth;
   canvas.height = cameraVideo.videoHeight;
   canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
-  canvas.toBlob(blob => handleImage(blob), 'image/png');
+  setImage(canvas.toDataURL('image/png'));
   stopCamera();
 });
 
@@ -102,9 +101,11 @@ function stopCamera() {
 }
 
 extractBtn.addEventListener('click', async () => {
-  if (!imageSrc) return showToast('Please select or capture an image.');
+  if (!imageSrc) {
+    showToast('Please select or capture an image.');
+    return;
+  }
   extractBtn.disabled = true;
-  resultContainer.setAttribute('aria-hidden', 'true');
   resultText.textContent = 'Processing...';
   try {
     const { data: { text } } = await Tesseract.recognize(imageSrc, 'eng');
@@ -118,7 +119,10 @@ extractBtn.addEventListener('click', async () => {
 
 copyBtn.addEventListener('click', () => {
   const text = resultText.textContent.trim();
-  if (!text) return showToast('Nothing to copy.');
+  if (!text) {
+    showToast('Nothing to copy.');
+    return;
+  }
   navigator.clipboard.writeText(text)
     .then(() => showToast('Text copied!', 'success'))
     .catch(() => showToast('Failed to copy.'));
