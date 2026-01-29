@@ -1,6 +1,7 @@
 # Image to Text Tool (Client-Side)
 
 ![Logo](cat2.gif)
+
 A modern, fully client-side web application to extract text from images. Supports file upload, pasting images, and capturing images from your camera. No data is uploaded-100% processed in your browser.
 
 ## Features
