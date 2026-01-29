@@ -1,34 +1,34 @@
-const fileInput = document.getElementById('fileInput');
-const preview = document.getElementById('preview');
-const extractBtn = document.getElementById('extractBtn');
-const resultText = document.getElementById('resultText');
-const copyBtn = document.getElementById('copyBtn');
-const resultContainer = document.querySelector('.result');
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+const extractBtn=document.getElementById('extractBtn');
+const resultText=document.getElementById('resultText');
+const copyBtn=document.getElementById('copyBtn');
+const resultContainer=document.querySelector('.result');
 
-const cameraBtn = document.getElementById('cameraBtn');
-const cameraModal = document.getElementById('cameraModal');
-const cameraVideo = document.getElementById('cameraVideo');
-const captureBtn = document.getElementById('captureBtn');
-const closeCamera = document.getElementById('closeCamera');
+const cameraBtn=document.getElementById('cameraBtn');
+const cameraModal=document.getElementById('cameraModal');
+const cameraVideo=document.getElementById('cameraVideo');
+const captureBtn=document.getElementById('captureBtn');
+const closeCamera=document.getElementById('closeCamera');
 
-const toastContainer = document.getElementById('toastContainer');
-const fileBtn = document.querySelector('.file-btn');
+const toastContainer=document.getElementById('toastContainer');
+const fileBtn=document.querySelector('.file-btn');
 
-let imageSrc = '';
+let imageSrc='';
 let stream;
 
-function showToast(message, type='error') {
-  const toast = document.createElement('div');
+function showToast(message,type='error'){
+  const toast=document.createElement('div');
   toast.classList.add('toast');
   if(type==='success') toast.classList.add('success');
-  toast.textContent = message;
+  toast.textContent=message;
   toastContainer.appendChild(toast);
-  setTimeout(()=>{ toast.remove(); },3500);
+  setTimeout(()=>toast.remove(),3500);
 }
 
-fileBtn.addEventListener('click', ()=>fileInput.click());
+fileBtn.addEventListener('click',()=>fileInput.click());
 
-fileInput.addEventListener('change', e=>{
+fileInput.addEventListener('change',e=>{
   const file=e.target.files[0];
   if(!file) return;
   if(!file.type.startsWith('image/')) return showToast('Invalid file type.');
@@ -36,8 +36,8 @@ fileInput.addEventListener('change', e=>{
   preview.src=imageSrc;
 });
 
-document.addEventListener('paste', e=>{
-  const items = e.clipboardData.items;
+document.addEventListener('paste',e=>{
+  const items=e.clipboardData.items;
   for(const item of items){
     if(item.type.startsWith('image/')){
       const blob=item.getAsFile();
@@ -48,7 +48,7 @@ document.addEventListener('paste', e=>{
   }
 });
 
-cameraBtn.addEventListener('click', async()=>{
+cameraBtn.addEventListener('click',async()=>{
   cameraModal.setAttribute('aria-hidden','false');
   try{
     stream=await navigator.mediaDevices.getUserMedia({video:true});
@@ -59,7 +59,7 @@ cameraBtn.addEventListener('click', async()=>{
   }
 });
 
-captureBtn.addEventListener('click', ()=>{
+captureBtn.addEventListener('click',()=>{
   if(!stream) return showToast('No camera stream.');
   const canvas=document.createElement('canvas');
   canvas.width=cameraVideo.videoWidth;
@@ -70,14 +70,13 @@ captureBtn.addEventListener('click', ()=>{
   stopCamera();
 });
 
-closeCamera.addEventListener('click', stopCamera);
-
+closeCamera.addEventListener('click',stopCamera);
 function stopCamera(){
   cameraModal.setAttribute('aria-hidden','true');
   if(stream) stream.getTracks().forEach(t=>t.stop());
 }
 
-extractBtn.addEventListener('click', ()=>{
+extractBtn.addEventListener('click',()=>{
   if(!imageSrc) return showToast('Please select or capture an image.');
   resultContainer.setAttribute('aria-hidden','true');
   resultText.textContent='Processing...';
@@ -89,9 +88,10 @@ extractBtn.addEventListener('click', ()=>{
     .catch(()=>showToast('Failed to extract text.'));
 });
 
-copyBtn.addEventListener('click', ()=>{
-  if(!resultText.textContent.trim()) return showToast('Nothing to copy.');
-  navigator.clipboard.writeText(resultText.textContent)
+copyBtn.addEventListener('click',()=>{
+  const text=resultText.textContent.trim();
+  if(!text) return showToast('Nothing to copy.');
+  navigator.clipboard.writeText(text)
     .then(()=>showToast('Text copied!','success'))
     .catch(()=>showToast('Failed to copy.'));
 });
