@@ -20,13 +20,12 @@ A modern, fully client-side web application to extract text from images. Support
 
 ## Installation
 
-1. Clone or download the repository.
-2. Ensure the following files exist in the same directory:
-   - `index.html`
-   - `style.css`
-   - `script.js`
-   - `cat1.gif` … `cat7.gif` (logo images)
-3. Open `index.html` in a browser.
+1. Clone or download the repository:
+
+```bash
+git clone https://github.com/malindiboys/image-to-text-tool.git
+cd image-to-text-tool```
+
 
 ## Usage
 
