@@ -1,5 +1,5 @@
 const logoImg = document.querySelector('.logo');
-const logoCount = 7;
+const logoCount = 8;
 logoImg.src = `cat${Math.floor(Math.random()*logoCount)+1}.gif`;
 
 const fileInput = document.getElementById('fileInput');
