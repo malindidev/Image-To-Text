@@ -40,12 +40,14 @@ fileInput.addEventListener('change', e => {
 });
 
 document.addEventListener('paste', e => {
-  const items = e.clipboardData.items;
+  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+  if(!items) return;
   for(const item of items) {
-    if(item.type.startsWith('image/')) {
+    if(item.type.indexOf('image') !== -1) {
       const blob = item.getAsFile();
       imageSrc = URL.createObjectURL(blob);
       preview.src = imageSrc;
+      e.preventDefault();
       return;
     }
   }
