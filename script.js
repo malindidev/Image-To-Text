@@ -12,83 +12,86 @@ const captureBtn = document.getElementById('captureBtn');
 const closeCamera = document.getElementById('closeCamera');
 
 const toastContainer = document.getElementById('toastContainer');
+const fileBtn = document.querySelector('.file-btn');
 
 let imageSrc = '';
 let stream;
 
-function showToast(message, type = 'error') {
+function showToast(message, type='error') {
   const toast = document.createElement('div');
   toast.classList.add('toast');
-  if (type === 'success') toast.style.background = '#00bfa6';
+  if(type==='success') toast.classList.add('success');
   toast.textContent = message;
   toastContainer.appendChild(toast);
-  setTimeout(() => {
-    toast.remove();
-  }, 3500);
+  setTimeout(()=>{ toast.remove(); },3500);
 }
 
-fileInput.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  imageSrc = URL.createObjectURL(file);
-  preview.src = imageSrc;
+fileBtn.addEventListener('click', ()=>fileInput.click());
+
+fileInput.addEventListener('change', e=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) return showToast('Invalid file type.');
+  imageSrc=URL.createObjectURL(file);
+  preview.src=imageSrc;
 });
 
-cameraBtn.addEventListener('click', async () => {
-  cameraModal.setAttribute('aria-hidden', 'false');
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    cameraVideo.srcObject = stream;
-  } catch {
-    showToast('Camera access denied or not available.');
-    cameraModal.setAttribute('aria-hidden', 'true');
+document.addEventListener('paste', e=>{
+  const items = e.clipboardData.items;
+  for(const item of items){
+    if(item.type.startsWith('image/')){
+      const blob=item.getAsFile();
+      imageSrc=URL.createObjectURL(blob);
+      preview.src=imageSrc;
+      return;
+    }
   }
 });
 
-captureBtn.addEventListener('click', () => {
-  if (!stream) {
-    showToast('No camera stream available.');
-    return;
+cameraBtn.addEventListener('click', async()=>{
+  cameraModal.setAttribute('aria-hidden','false');
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:true});
+    cameraVideo.srcObject=stream;
+  }catch{
+    showToast('Camera access denied.');
+    cameraModal.setAttribute('aria-hidden','true');
   }
-  const canvas = document.createElement('canvas');
-  canvas.width = cameraVideo.videoWidth;
-  canvas.height = cameraVideo.videoHeight;
-  canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
-  imageSrc = canvas.toDataURL('image/png');
-  preview.src = imageSrc;
+});
+
+captureBtn.addEventListener('click', ()=>{
+  if(!stream) return showToast('No camera stream.');
+  const canvas=document.createElement('canvas');
+  canvas.width=cameraVideo.videoWidth;
+  canvas.height=cameraVideo.videoHeight;
+  canvas.getContext('2d').drawImage(cameraVideo,0,0);
+  imageSrc=canvas.toDataURL('image/png');
+  preview.src=imageSrc;
   stopCamera();
 });
 
 closeCamera.addEventListener('click', stopCamera);
 
-function stopCamera() {
-  cameraModal.setAttribute('aria-hidden', 'true');
-  if (stream) stream.getTracks().forEach(track => track.stop());
+function stopCamera(){
+  cameraModal.setAttribute('aria-hidden','true');
+  if(stream) stream.getTracks().forEach(t=>t.stop());
 }
 
-extractBtn.addEventListener('click', () => {
-  if (!imageSrc) {
-    showToast('Please select or capture an image first.');
-    return;
-  }
-  resultContainer.setAttribute('aria-hidden', 'true');
-  resultText.textContent = 'Processing...';
-  Tesseract.recognize(imageSrc, 'eng', { logger: m => console.log(m) })
-    .then(({ data: { text } }) => {
-      resultText.textContent = text.trim() || 'No text detected.';
-      resultContainer.setAttribute('aria-hidden', 'false');
+extractBtn.addEventListener('click', ()=>{
+  if(!imageSrc) return showToast('Please select or capture an image.');
+  resultContainer.setAttribute('aria-hidden','true');
+  resultText.textContent='Processing...';
+  Tesseract.recognize(imageSrc,'eng',{logger:m=>console.log(m)})
+    .then(({data:{text}})=>{
+      resultText.textContent=text.trim()||'No text detected.';
+      resultContainer.setAttribute('aria-hidden','false');
     })
-    .catch(() => {
-      showToast('Error extracting text. Try another image.');
-    });
+    .catch(()=>showToast('Failed to extract text.'));
 });
 
-copyBtn.addEventListener('click', () => {
-  if (!resultText.textContent.trim()) {
-    showToast('Nothing to copy.');
-    return;
-  }
+copyBtn.addEventListener('click', ()=>{
+  if(!resultText.textContent.trim()) return showToast('Nothing to copy.');
   navigator.clipboard.writeText(resultText.textContent)
-    .then(() => showToast('Text copied!', 'success'))
-    .catch(() => showToast('Failed to copy.'));
+    .then(()=>showToast('Text copied!','success'))
+    .catch(()=>showToast('Failed to copy.'));
 });
