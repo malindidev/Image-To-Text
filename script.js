@@ -1,43 +1,59 @@
 const fileInput = document.getElementById('fileInput');
 const preview = document.getElementById('preview');
 const extractBtn = document.getElementById('extractBtn');
-const result = document.getElementById('resultText');
+const resultText = document.getElementById('resultText');
 const copyBtn = document.getElementById('copyBtn');
 const resultContainer = document.querySelector('.result');
 
 const cameraBtn = document.getElementById('cameraBtn');
 const cameraModal = document.getElementById('cameraModal');
-const qrVideo = document.getElementById('qrVideo');
+const cameraVideo = document.getElementById('cameraVideo');
 const captureBtn = document.getElementById('captureBtn');
 const closeCamera = document.getElementById('closeCamera');
+
+const toastContainer = document.getElementById('toastContainer');
 
 let imageSrc = '';
 let stream;
 
-fileInput.addEventListener('change', (e) => {
+function showToast(message, type = 'error') {
+  const toast = document.createElement('div');
+  toast.classList.add('toast');
+  if (type === 'success') toast.style.background = '#00bfa6';
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3500);
+}
+
+fileInput.addEventListener('change', e => {
   const file = e.target.files[0];
-  if (file) {
-    imageSrc = URL.createObjectURL(file);
-    preview.src = imageSrc;
-  }
+  if (!file) return;
+  imageSrc = URL.createObjectURL(file);
+  preview.src = imageSrc;
 });
 
 cameraBtn.addEventListener('click', async () => {
   cameraModal.setAttribute('aria-hidden', 'false');
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    qrVideo.srcObject = stream;
-  } catch (err) {
-    alert('Camera access denied or not available.');
+    cameraVideo.srcObject = stream;
+  } catch {
+    showToast('Camera access denied or not available.');
     cameraModal.setAttribute('aria-hidden', 'true');
   }
 });
 
 captureBtn.addEventListener('click', () => {
+  if (!stream) {
+    showToast('No camera stream available.');
+    return;
+  }
   const canvas = document.createElement('canvas');
-  canvas.width = qrVideo.videoWidth;
-  canvas.height = qrVideo.videoHeight;
-  canvas.getContext('2d').drawImage(qrVideo, 0, 0);
+  canvas.width = cameraVideo.videoWidth;
+  canvas.height = cameraVideo.videoHeight;
+  canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
   imageSrc = canvas.toDataURL('image/png');
   preview.src = imageSrc;
   stopCamera();
@@ -52,22 +68,27 @@ function stopCamera() {
 
 extractBtn.addEventListener('click', () => {
   if (!imageSrc) {
-    alert('Please select or capture an image first.');
+    showToast('Please select or capture an image first.');
     return;
   }
   resultContainer.setAttribute('aria-hidden', 'true');
-  result.textContent = 'Processing...';
-
+  resultText.textContent = 'Processing...';
   Tesseract.recognize(imageSrc, 'eng', { logger: m => console.log(m) })
     .then(({ data: { text } }) => {
-      result.textContent = text.trim() || 'No text detected.';
+      resultText.textContent = text.trim() || 'No text detected.';
       resultContainer.setAttribute('aria-hidden', 'false');
+    })
+    .catch(() => {
+      showToast('Error extracting text. Try another image.');
     });
 });
 
 copyBtn.addEventListener('click', () => {
-  if (!result.textContent.trim()) return;
-  navigator.clipboard.writeText(result.textContent).then(() => {
-    alert('Text copied to clipboard!');
-  });
+  if (!resultText.textContent.trim()) {
+    showToast('Nothing to copy.');
+    return;
+  }
+  navigator.clipboard.writeText(resultText.textContent)
+    .then(() => showToast('Text copied!', 'success'))
+    .catch(() => showToast('Failed to copy.'));
 });
