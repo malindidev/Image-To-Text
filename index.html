@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image to Text Tool</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image to Text Tool</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="app">
   <div class="card">
+
     <div class="card__header">
       <img src="cat1.gif" alt="Logo" class="logo">
       <div>
@@ -21,28 +23,41 @@
       <div class="field">
         <label class="field__label">Upload Image</label>
         <div class="file-wrapper">
-  <input type="file" id="fileInput" accept="image/*" class="input">
-   <span class="file-btn">Choose File</span>
-    </div>
+          <input type="file" id="fileInput" accept="image/*" class="input">
+          <span class="file-btn">Choose File</span>
+        </div>
       </div>
+
       <div class="field">
         <button id="cameraBtn" class="btn btn--primary">Capture from Camera</button>
       </div>
     </div>
 
+    <div class="preview-card" aria-hidden="true">
+      <span class="preview-label">Image Preview</span>
+      <img id="previewImage" alt="Preview">
+    </div>
+
     <div class="result-card">
       <button id="extractBtn" class="btn btn--primary">Extract Text</button>
+
       <div class="result" aria-hidden="true">
         <div class="result__meta">
           <span class="result__label">Extracted Text</span>
           <button id="copyBtn" class="icon-btn">📋</button>
         </div>
-        <div class="result__text" id="resultText" contenteditable="true" spellcheck="true"></div>
+        <div
+          class="result__text"
+          id="resultText"
+          contenteditable="true"
+          spellcheck="true">
+        </div>
       </div>
     </div>
 
     <p class="card__footer">100% client-side. No data uploaded.</p>
     <p class="card__footer">Made by mal :)</p>
+
   </div>
 </div>
 
@@ -58,5 +73,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>
