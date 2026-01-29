@@ -16,8 +16,7 @@ A modern, fully client-side web application to extract text from images. Support
 
 ## Demo
 
-Open `index.html` in any modern browser (Chrome, Firefox, Edge).  
-No server or backend required.
+[CLick me!](https://itt.bbnerds.com) 
 
 ## Installation
 
@@ -43,22 +42,8 @@ No server or backend required.
 
 - [Tesseract.js](https://github.com/naptha/tesseract.js) (CDN used in HTML)
 
-## File Structure
-
-/project-root
-│
-├─ index.html
-├─ style.css
-├─ script.js
-├─ cat1.gif … cat7.gif
-└─ README.md
-
 ## Notes
 
 - All processing is client-side; no data is sent to a server.
 - Works in modern browsers with camera access support.
 - For best results, use high-contrast images with clear text.
-
-## License
-
-MIT License
