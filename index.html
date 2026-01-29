@@ -1,33 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to Text Tool</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image to Text Tool</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Image to Text Tool</h1>
-
-        <div class="card">
-            <input type="file" id="fileInput" accept="image/*">
-            <button id="cameraBtn">Use Camera</button>
-            <button id="pasteBtn">Paste Image</button>
+  <div class="app">
+    <div class="card">
+      <div class="card__header">
+        <img src="logo.png" alt="Logo" class="logo">
+        <div>
+          <h1 class="title">Image to Text Tool</h1>
+          <p class="subtitle">Extract text from images instantly, 100% client-side</p>
         </div>
+      </div>
 
-        <div class="card" id="previewCard">
-            <img id="preview" alt="Preview will appear here">
+      <div class="form">
+        <div class="field">
+          <label class="field__label" for="fileInput">Upload Image</label>
+          <input type="file" id="fileInput" accept="image/*" class="input">
         </div>
+        <div class="field">
+          <label class="field__label">Or Capture from Camera</label>
+          <button id="cameraBtn" class="btn btn--primary">Open Camera</button>
+        </div>
+      </div>
 
-        <div class="card">
-            <button id="extractBtn">Extract Text</button>
-            <textarea id="result" placeholder="Extracted text will appear here..." readonly></textarea>
-            <button id="copyBtn">Copy Text</button>
+      <div class="card" id="previewCard">
+        <img id="preview" alt="Preview will appear here">
+      </div>
+
+      <div class="card">
+        <button id="extractBtn" class="btn btn--primary">Extract Text</button>
+        <div class="result" aria-hidden="true">
+          <div class="result__meta">
+            <span class="result__label">Extracted Text</span>
+            <button id="copyBtn" class="icon-btn">📋</button>
+          </div>
+          <p class="result__text" id="resultText"></p>
         </div>
+      </div>
+
+      <p class="card__footer">100% client-side, no data uploaded.</p>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    <script src="script.js"></script>
+  <div class="camera-modal" aria-hidden="true" id="cameraModal">
+    <video id="qrVideo" autoplay playsinline></video>
+    <div class="scan-overlay">
+      <div class="scan-frame"></div>
+    </div>
+    <div class="camera-controls">
+      <button id="captureBtn" class="icon-btn">📸</button>
+      <button id="closeCamera" class="icon-btn">✖️</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
