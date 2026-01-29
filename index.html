@@ -1,43 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Face Tracker</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Tool</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-  <!-- Camera & Overlay -->
-  <video id="video" autoplay muted playsinline></video>
-  <canvas id="overlay"></canvas>
+    <div class="container">
+        <h1>Image to Text Tool</h1>
 
-  <!-- Info Panel -->
-  <div class="info-panel">
-    <h1>Face Tracker</h1>
-    <p>Move your face in front of the camera. Landmarks are tracked live.</p>
-    <div class="buttons">
-      <button id="togglePoints">Toggle Points</button>
-      <button id="toggleLines">Toggle Lines</button>
-      <button id="helpBtn">Help</button>
+        <div class="card">
+            <input type="file" id="fileInput" accept="image/*">
+            <button id="cameraBtn">Use Camera</button>
+            <button id="pasteBtn">Paste Image</button>
+        </div>
+
+        <div class="card" id="previewCard">
+            <img id="preview" alt="Preview will appear here">
+        </div>
+
+        <div class="card">
+            <button id="extractBtn">Extract Text</button>
+            <textarea id="result" placeholder="Extracted text will appear here..." readonly></textarea>
+            <button id="copyBtn">Copy Text</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Help Modal -->
-  <div class="modal" id="helpModal">
-    <div class="modal-content">
-      <span id="closeModal">&times;</span>
-      <h2>How to Use</h2>
-      <ul>
-        <li>Allow camera access.</li>
-        <li>Move your face in front of the camera.</li>
-        <li>Use the buttons to toggle points or lines.</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<script defer src="https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/dist/face-api.min.js"></script>
-<script defer src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
