@@ -1,12 +1,8 @@
 const logoImg = document.querySelector('.logo');
 const logoCount = 7;
-logoImg.src = `cat${Math.floor(Math.random()*logoCount)+1}.gif`;
+logoImg.src = `cat${Math.floor(Math.random() * logoCount) + 1}.gif`;
 
 const fileInput = document.getElementById('fileInput');
-const preview = document.createElement('img');
-preview.style.display='none';
-document.body.appendChild(preview);
-
 const extractBtn = document.getElementById('extractBtn');
 const resultText = document.getElementById('resultText');
 const resultContainer = document.querySelector('.result');
@@ -24,88 +20,106 @@ const fileBtn = document.querySelector('.file-btn');
 let imageSrc = '';
 let stream;
 
-function showToast(msg,type='error'){
-  const toast=document.createElement('div');
-  toast.className='toast';
-  if(type==='success') toast.classList.add('success');
-  toast.textContent=msg;
+const previewCard = document.createElement('div');
+previewCard.className = 'preview-card';
+previewCard.style.display = 'none';
+
+const previewImg = document.createElement('img');
+previewCard.appendChild(previewImg);
+
+document.querySelector('.card').insertBefore(
+  previewCard,
+  document.querySelector('.result-card')
+);
+
+function showToast(msg, type = 'error') {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  if (type === 'success') toast.classList.add('success');
+  toast.textContent = msg;
   toastContainer.appendChild(toast);
-  setTimeout(()=>toast.remove(),3500);
+  setTimeout(() => toast.remove(), 3500);
 }
 
-fileBtn.addEventListener('click',()=>fileInput.click());
+function setPreview(src) {
+  previewImg.src = src;
+  previewCard.style.display = 'block';
+}
 
-function handleImage(file){
-  if(!file) return;
-  if(!file.type.startsWith('image/')) return showToast('Invalid file type.');
-  if(imageSrc.startsWith('blob:')) URL.revokeObjectURL(imageSrc);
+function handleImage(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return showToast('Invalid file type.');
+  if (imageSrc.startsWith('blob:')) URL.revokeObjectURL(imageSrc);
   imageSrc = URL.createObjectURL(file);
-  preview.src = imageSrc;
-  resultContainer.setAttribute('aria-hidden','true');
+  setPreview(imageSrc);
+  resultContainer.setAttribute('aria-hidden', 'true');
   resultText.textContent = '';
 }
 
-fileInput.addEventListener('change',e=>handleImage(e.target.files[0]));
+fileBtn.addEventListener('click', () => fileInput.click());
 
-document.addEventListener('paste', e=>{
-  const items=(e.clipboardData||e.originalEvent.clipboardData).items;
-  if(!items) return;
-  for(const item of items){
-    if(item.type.indexOf('image')!==-1){
-      const blob=item.getAsFile();
-      handleImage(blob);
+fileInput.addEventListener('change', e => {
+  handleImage(e.target.files[0]);
+});
+
+document.addEventListener('paste', e => {
+  const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.includes('image')) {
+      handleImage(item.getAsFile());
       e.preventDefault();
       return;
     }
   }
 });
 
-cameraBtn.addEventListener('click', async ()=>{
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({video:true});
-    cameraVideo.srcObject=stream;
+cameraBtn.addEventListener('click', async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    cameraVideo.srcObject = stream;
     cameraModal.classList.add('show');
-  }catch{
+  } catch {
     showToast('Camera access denied.');
   }
 });
 
-captureBtn.addEventListener('click',()=>{
-  if(!stream) return showToast('No camera stream.');
-  const canvas=document.createElement('canvas');
-  canvas.width=cameraVideo.videoWidth;
-  canvas.height=cameraVideo.videoHeight;
-  canvas.getContext('2d').drawImage(cameraVideo,0,0);
-  handleImage(canvas.toDataURL('image/png'));
+captureBtn.addEventListener('click', () => {
+  if (!stream) return showToast('No camera stream.');
+  const canvas = document.createElement('canvas');
+  canvas.width = cameraVideo.videoWidth;
+  canvas.height = cameraVideo.videoHeight;
+  canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+  canvas.toBlob(blob => handleImage(blob), 'image/png');
   stopCamera();
 });
 
-closeCamera.addEventListener('click',stopCamera);
+closeCamera.addEventListener('click', stopCamera);
 
-function stopCamera(){
+function stopCamera() {
   cameraModal.classList.remove('show');
-  if(stream) stream.getTracks().forEach(t=>t.stop());
+  if (stream) stream.getTracks().forEach(t => t.stop());
 }
 
-extractBtn.addEventListener('click', async ()=>{
-  if(!imageSrc) return showToast('Please select or capture an image.');
+extractBtn.addEventListener('click', async () => {
+  if (!imageSrc) return showToast('Please select or capture an image.');
   extractBtn.disabled = true;
-  resultContainer.setAttribute('aria-hidden','true');
-  resultText.textContent='Processing...';
-  try{
-    const { data: { text } } = await Tesseract.recognize(imageSrc,'eng',{logger:m=>console.log(m)});
-    resultText.textContent = text.trim()||'No text detected.';
-    resultContainer.setAttribute('aria-hidden','false');
-  }catch{
+  resultContainer.setAttribute('aria-hidden', 'true');
+  resultText.textContent = 'Processing...';
+  try {
+    const { data: { text } } = await Tesseract.recognize(imageSrc, 'eng');
+    resultText.textContent = text.trim() || 'No text detected.';
+    resultContainer.setAttribute('aria-hidden', 'false');
+  } catch {
     showToast('Failed to extract text.');
   }
   extractBtn.disabled = false;
 });
 
-copyBtn.addEventListener('click',()=>{
-  const text=resultText.textContent.trim();
-  if(!text) return showToast('Nothing to copy.');
+copyBtn.addEventListener('click', () => {
+  const text = resultText.textContent.trim();
+  if (!text) return showToast('Nothing to copy.');
   navigator.clipboard.writeText(text)
-    .then(()=>showToast('Text copied!','success'))
-    .catch(()=>showToast('Failed to copy.'));
+    .then(() => showToast('Text copied!', 'success'))
+    .catch(() => showToast('Failed to copy.'));
 });
