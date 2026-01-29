@@ -46,5 +46,5 @@ A modern, fully client-side web application to extract text from images. Support
 1. Clone or download the repository:
 
 ```bash
-git clone https://github.com/malindiboys/image-to-text-tool.git
+git clone https://github.com/malindiboys/itt.git
 cd image-to-text-tool
