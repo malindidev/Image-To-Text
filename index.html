@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="cat4.gif" type="image/gif" />
-  <title>Image to Text Tool</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="cat4.gif" type="image/gif" />
+<title>Image to Text Tool</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -23,35 +23,82 @@
     <div class="form">
       <div class="field">
         <label class="field__label">Upload Image</label>
-        <div class="file-wrapper">
-          <input type="file" id="fileInput" accept="image/*" class="input">
-          <span class="file-btn">Choose File</span>
+        <div class="dropzone" id="dropzone">
+          <div class="file-wrapper">
+            <input type="file" id="fileInput" accept="image/*" class="input">
+            <span class="file-btn">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4L7 9M12 4L17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Choose File</span>
+            </span>
+          </div>
         </div>
+        <p class="dropzone__hint">Drag &amp; drop, click to browse, or paste an image (Ctrl+V)</p>
       </div>
 
-      <div class="field">
-        <button id="cameraBtn" class="btn btn--primary">Capture from Camera</button>
+      <div class="field field--row">
+        <button id="cameraBtn" class="btn btn--secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 8C4 6.89543 4.89543 6 6 6H7.5L8.5 4H15.5L16.5 6H18C19.1046 6 20 6.89543 20 8V17C20 18.1046 19.1046 19 18 19H6C4.89543 19 4 18.1046 4 17V8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+          <span>Capture from Camera</span>
+        </button>
+        <label class="field__label field__label--inline" for="langSelect">Language</label>
+        <select id="langSelect" class="lang-select">
+          <option value="eng" selected>English</option>
+          <option value="spa">Spanish</option>
+          <option value="fra">French</option>
+          <option value="deu">German</option>
+          <option value="ita">Italian</option>
+          <option value="por">Portuguese</option>
+          <option value="nld">Dutch</option>
+          <option value="rus">Russian</option>
+          <option value="chi_sim">Chinese (Simplified)</option>
+          <option value="jpn">Japanese</option>
+          <option value="ara">Arabic</option>
+        </select>
       </div>
     </div>
 
     <div class="preview-card" aria-hidden="true">
-      <span class="preview-label">Image Preview</span>
+      <div class="preview-card__header">
+        <span class="preview-label">Image Preview</span>
+        <button id="clearBtn" class="icon-btn icon-btn--ghost" title="Remove image">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <img id="previewImage" alt="Preview">
     </div>
 
     <div class="result-card">
-      <button id="extractBtn" class="btn btn--primary">Extract Text</button>
+      <button id="extractBtn" class="btn btn--primary">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M9 12L11 14L15 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/></svg>
+        <span>Extract Text</span>
+      </button>
+
+      <div class="progress" id="progress" aria-hidden="true">
+        <div class="progress__bar" id="progressBar"></div>
+        <span class="progress__label" id="progressLabel">0%</span>
+      </div>
 
       <div class="result" aria-hidden="true">
         <div class="result__meta">
-          <span class="result__label">Extracted Text</span>
-          <button id="copyBtn" class="icon-btn">📋</button>
+          <span class="result__label" id="resultLabel">Extracted Text</span>
+          <div class="result__actions">
+            <button id="copyBtn" class="icon-btn" title="Copy to clipboard">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5C5 3.89543 5.89543 3 7 3H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <button id="downloadBtn" class="icon-btn" title="Download as .txt">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 3V15M12 15L8 11M12 15L16 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
         </div>
         <div
           class="result__text"
           id="resultText"
           contenteditable="true"
-          spellcheck="true">
+          spellcheck="true"
+          data-placeholder="Extracted text will appear here...">
+        </div>
+        <div class="result__footer">
+          <span id="charCount">0 characters</span>
         </div>
       </div>
     </div>
@@ -67,8 +114,12 @@
 <div class="camera-modal" aria-hidden="true" id="cameraModal">
   <video id="cameraVideo" autoplay playsinline></video>
   <div class="camera-controls">
-    <button id="captureBtn" class="icon-btn">📸</button>
-    <button id="closeCamera" class="icon-btn">✖️</button>
+    <button id="captureBtn" class="icon-btn icon-btn--light" title="Capture">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 8C4 6.89543 4.89543 6 6 6H7.5L8.5 4H15.5L16.5 6H18C19.1046 6 20 6.89543 20 8V17C20 18.1046 19.1046 19 18 19H6C4.89543 19 4 18.1046 4 17V8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <button id="closeCamera" class="icon-btn icon-btn--light" title="Close">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
   </div>
 </div>
 
